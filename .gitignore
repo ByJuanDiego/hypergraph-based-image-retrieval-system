@@ -1,0 +1,5 @@
+/venv/
+/.idea/
+/images/
+/filtered_images/
+/mpii_human_pose_v1.tar.gz

@@ -2,8 +2,8 @@ import subprocess
 import time
 import os
 
-from utils.graph.get import get_graph_from_full_body_image
-from utils.graph.feature_models import pose_model
+from graph.models.full_body import get_graph_from_full_body_image
+from graph.models.full_body import get_pose_model
 
 
 def filter_dataset(
@@ -12,6 +12,7 @@ def filter_dataset(
         threshold: float = 0.8,
         delay: float = 0.5
 ):
+    pose_model = get_pose_model()
     paths = os.listdir(dataset_path)
     i = 0
 
@@ -20,7 +21,7 @@ def filter_dataset(
 
         try:
             total_path = dataset_path + "/" + image_path
-            _, _ = get_graph_from_full_body_image(path=total_path, model=pose_model, threshold=threshold)
+            _, _ = get_graph_from_full_body_image(path=total_path, pose_model=pose_model, threshold=threshold)
 
             new_total_path = new_dataset_path + "/" + image_path
             subprocess.run(["cp", total_path, new_total_path])

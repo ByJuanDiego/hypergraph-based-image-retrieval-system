@@ -2,8 +2,8 @@ import pickle
 import time
 import os
 
-from utils.graph.get import get_graph_from_full_body_image
-from utils.graph.feature_models import pose_model
+from graph.models.full_body import get_graph_from_full_body_image
+from graph.models.full_body import get_pose_model
 
 
 def dump_graphs(graph: dict, filename: str):
@@ -17,13 +17,15 @@ def load_graphs(filename: str):
         return graphs
 
 
-def pickle_graphs(
+def dump_dataset_in_batches(
         dataset_path: str,
         pickle_path: str,
         graphs_per_batch: int,
         threshold: float = 0.8,
         delay: float = 0.5
 ):
+    pose_model = get_pose_model()
+
     graphs = {}
     paths = os.listdir(dataset_path)
 
@@ -31,11 +33,12 @@ def pickle_graphs(
     i = 0
 
     for image_path in paths:
+        i += 1
 
         try:
             total_path = dataset_path + "/" + image_path
 
-            vertexes, edges = get_graph_from_full_body_image(path=total_path, model=pose_model, threshold=threshold)
+            vertexes, edges = get_graph_from_full_body_image(path=total_path, pose_model=pose_model, threshold=threshold)
             graphs[image_path] = (vertexes, edges)
 
         except AttributeError as e:

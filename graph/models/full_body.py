@@ -1,12 +1,19 @@
-import cv2
 import mediapipe as mp
+import cv2
 
 
-def get_graph_from_full_body_image(path: str, model: mp.solutions.pose.SolutionBase, threshold: float):
+def get_pose_model():
+    return mp.solutions.pose.Pose(
+        static_image_mode=True,
+        model_complexity=2
+    )
+
+
+def get_graph_from_full_body_image(path: str, pose_model: mp.solutions.pose.Pose, threshold: float):
     image = cv2.imread(path)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    results = model.process(image_rgb)
+    results = pose_model.process(image_rgb)
 
     if results is None:
         raise AttributeError("Empty result")

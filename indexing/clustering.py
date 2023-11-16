@@ -4,7 +4,7 @@ import pickle
 
 class Cluster:
     _centroid: tuple | None = None
-    _graphs: list[tuple]
+    _graphs: list[tuple[str, tuple]]
 
     def __init__(self):
         self._centroid = None
@@ -24,19 +24,23 @@ class Cluster:
     def get_entries(self):
         return self._graphs
 
+    def get_centroid(self):
+        return self._centroid
+
     def size(self):
         return len(self._graphs)
 
 
 class MeanShift:
     _threshold: float = 0
-    _centroids: list[str] = []
+    _centroids: set[str] = []
     _graphs: dict = {}
     _distance = None
+    _clusters = list[Cluster]
 
     def __init__(self, graphs: dict, distance_function, threshold: float):
         self._threshold = threshold
-        self._centroids = []
+        self._centroids = set()
         self._graphs = graphs
         self._distance = distance_function
 
@@ -72,9 +76,9 @@ class MeanShift:
 
         return farthest
 
-    def fit(self):
+    def fit_centroids(self):
         s = list(self._graphs.items())
-        clusters = []
+        clusters = set()
 
         while len(s) > 0:
             print(len(s))
@@ -111,7 +115,7 @@ class MeanShift:
                 new_prototype_path, new_prototype_graph = cluster_entries[new_prototype]
 
                 if new_prototype_path == prototype_path:
-                    clusters.append(prototype_path)
+                    clusters.add(prototype_path)
                     print(f"i: {i}, prot_path: {prototype_path}, size: {cluster.size()}")
                     s = [g for g in s if g[0] not in cluster_paths]
                     break
@@ -126,11 +130,39 @@ class MeanShift:
 
         self._centroids = clusters
 
-    def centroids(self):
+    def get_centroids(self):
         if not self._centroids:
             raise AttributeError("The clusters are empty!")
         return self._centroids
 
-    def save(self, filename):
+    def save_centroids(self, filename):
         with open(filename, "wb") as file:
-            pickle.dump(self.centroids(), file)
+            pickle.dump(self.get_centroids(), file)
+
+    def load_centroids(self, filename):
+        with open(filename, "rb") as file:
+            self._centroids = pickle.load(file)
+
+    def fit_clusters(self):
+        self._clusters = []
+
+        for centroid_path in self._centroids:
+            cluster = Cluster()
+            cluster.set_centroid((centroid_path, self._graphs[centroid_path]))
+            self._clusters.append(cluster)
+
+        for path, graph in self._graphs:
+            for cluster in self._clusters:
+                if self._distance(graph, cluster.get_centroid()) < self._threshold:
+                    cluster.add_entry((path, graph))
+
+    def get_clusters(self):
+        return self._clusters
+
+    def save_clusters(self, filename):
+        with open(filename, "wb") as file:
+            pickle.dump(self.get_clusters(), file)
+
+    def load_clusters(self, filename):
+        with open(filename, "rb") as file:
+            self._clusters = pickle.load(file)

@@ -6,7 +6,10 @@ graphs: dict = load_graphs("pickles/graphs.p")
 
 threshold = 10.0
 mean_shift = MeanShift(graphs=graphs, distance_function=euclidean, threshold=threshold)
-mean_shift.fit()
-mean_shift.save("pickles/centroids.p")
-centroids = mean_shift.centroids()
-print(centroids)
+
+# mean_shift.fit_centroids()
+# mean_shift.save_centroids("pickles/centroids.p")
+
+mean_shift.load_centroids("pickles/centroids.p")
+
+mean_shift.fit_clusters()

@@ -1,4 +1,5 @@
 import sys
+import pickle
 
 
 class Cluster:
@@ -20,7 +21,7 @@ class Cluster:
     def add_entry(self, entry: tuple):
         self._graphs.append(entry)
 
-    def get_graphs(self):
+    def get_entries(self):
         return self._graphs
 
     def size(self):
@@ -29,13 +30,13 @@ class Cluster:
 
 class MeanShift:
     _threshold: float = 0
-    _clusters: list[str] = []
+    _centroids: list[str] = []
     _graphs: dict = {}
     _distance = None
 
     def __init__(self, graphs: dict, distance_function, threshold: float):
         self._threshold = threshold
-        self._clusters = []
+        self._centroids = []
         self._graphs = graphs
         self._distance = distance_function
 
@@ -76,7 +77,9 @@ class MeanShift:
         clusters = []
 
         while len(s) > 0:
+            print(len(s))
             median_graph: int = self.median_graph(s)
+            print("median graph computed")
             farthest: int = self.farthest(s, median_graph)
 
             prototype: int = self.farthest(s, farthest)
@@ -85,22 +88,23 @@ class MeanShift:
             cluster = Cluster()
             cluster.set_centroid((prototype_path, prototype_graph))
 
+            i: int = 0
             while True:
                 for path, graph in s:
-                    if prototype_path == path:
+                    if path == prototype_path:
                         continue
 
                     is_cluster_member = True
 
-                    for cluster_member_path, cluster_member_graph in cluster.get_graphs():
-                        if self._distance(cluster_member_graph, graph) > self._threshold:
+                    for _, cluster_member_graph in cluster.get_entries():
+                        if self._distance(graph, cluster_member_graph) > self._threshold:
                             is_cluster_member = False
                             break
 
                     if is_cluster_member:
                         cluster.add_entry((path, graph))
 
-                cluster_entries: list[tuple] = cluster.get_graphs()
+                cluster_entries: list[tuple] = cluster.get_entries()
                 cluster_paths: set = {g[0] for g in cluster_entries}
 
                 new_prototype: int = self.median_graph(cluster_entries)
@@ -108,14 +112,25 @@ class MeanShift:
 
                 if new_prototype_path == prototype_path:
                     clusters.append(prototype_path)
+                    print(f"i: {i}, prot_path: {prototype_path}, size: {cluster.size()}")
                     s = [g for g in s if g[0] not in cluster_paths]
-                else:
-                    cluster = Cluster()
-                    cluster.set_centroid((new_prototype_path, new_prototype_graph))
+                    break
 
-        self._clusters = clusters
+                print(f"i: {i}, {cluster.size()}")
 
-    def clusters(self):
-        if not self._clusters:
+                prototype_path, prototype_graph = new_prototype_path, new_prototype_graph
+                cluster = Cluster()
+                cluster.set_centroid((prototype_path, prototype_graph))
+
+                i += 1
+
+        self._centroids = clusters
+
+    def centroids(self):
+        if not self._centroids:
             raise AttributeError("The clusters are empty!")
-        return self._clusters
+        return self._centroids
+
+    def save(self, filename):
+        with open(filename, "wb") as file:
+            pickle.dump(self.centroids(), file)

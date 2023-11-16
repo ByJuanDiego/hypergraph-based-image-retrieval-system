@@ -88,7 +88,6 @@ class MeanShift:
                     is_cluster_member = True
 
                     for cluster_member_path, cluster_member_graph in cluster.get_graphs():
-
                         if self._distance(cluster_member_graph, graph) > self._threshold:
                             is_cluster_member = False
                             break
@@ -99,8 +98,10 @@ class MeanShift:
 
                 if any_added:
                     cluster_graphs = cluster.get_graphs()
-                    prototype_graph = self.median_graph(cluster_graphs)
-                    cluster = Cluster(cluster_graphs[prototype_graph])
+                    prototype = self.median_graph(cluster_graphs)
+
+                    prototype_path, prototype_graph = cluster_graphs[prototype]
+                    cluster = Cluster(prototype_graph)
                 else:
                     # TODO
                     break

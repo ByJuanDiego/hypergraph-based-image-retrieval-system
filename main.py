@@ -6,4 +6,5 @@ print(len(graphs))
 g1 = graphs["021541071.jpg"]
 g2 = graphs["025246930.jpg"]
 
+print(g1)
 print(euclidean(g1, g2))

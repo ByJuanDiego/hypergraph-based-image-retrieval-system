@@ -2,8 +2,8 @@ import subprocess
 import time
 import os
 
-from graph.models.full_body import get_graph_from_full_body_image
-from graph.models.full_body import get_pose_model
+from graph.embeddings.full_body_3D import get_graph_from_full_body_image
+from graph.embeddings.full_body_3D import get_pose_model
 
 
 def filter_dataset(

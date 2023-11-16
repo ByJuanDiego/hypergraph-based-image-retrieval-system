@@ -78,9 +78,10 @@ class MeanShift:
         while len(s) > 0:
             median_graph: int = self.median_graph(s)
             farthest: int = self.farthest(s, median_graph)
-            prototype: int = self.farthest(s, farthest)
 
+            prototype: int = self.farthest(s, farthest)
             prototype_path, prototype_graph = s[prototype]
+
             cluster = Cluster()
             cluster.set_centroid((prototype_path, prototype_graph))
 
@@ -105,7 +106,7 @@ class MeanShift:
                 new_prototype: int = self.median_graph(cluster_entries)
                 new_prototype_path, new_prototype_graph = cluster_entries[new_prototype]
 
-                if new_prototype_graph == prototype_graph:
+                if new_prototype_path == prototype_path:
                     clusters.append(prototype_path)
                     s = [g for g in s if g[0] not in cluster_paths]
                 else:

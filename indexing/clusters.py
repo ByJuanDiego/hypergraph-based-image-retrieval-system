@@ -2,19 +2,22 @@ import sys
 
 
 class Cluster:
-
     _centroid: tuple | None = None
     _graphs: list[tuple]
 
-    def __init__(self, centroid: tuple):
-        self._centroid = centroid
-        self._graphs = [centroid]
+    def __init__(self):
+        self._centroid = None
+        self._graphs = []
 
     def clear(self):
         self._graphs.clear()
         self._centroid = None
 
-    def add_graph(self, graph: tuple):
+    def set_centroid(self, graph: tuple):
+        self._centroid = graph[1]
+        self._graphs = [graph]
+
+    def add_entry(self, graph: tuple):
         self._graphs.append(graph)
 
     def get_graphs(self):
@@ -22,30 +25,29 @@ class Cluster:
 
 
 class MeanShift:
-
     _threshold: float = 0
-    _clusters: dict = {}
+    _clusters: list[str] = []
     _graphs: dict = {}
     _distance = None
 
     def __init__(self, graphs: dict, distance_function, threshold: float):
         self._threshold = threshold
-        self._clusters = {}
+        self._clusters = []
         self._graphs = graphs
         self._distance = distance_function
 
     def median_graph(
             self,
-            s: list,    # list of graphs [("path", graph), ...]
-    ):
+            s: list,  # list of graphs [("path", graph), ...]
+    ) -> int:
         n = len(s)
         median_graph = None
         sum_of_distances = sys.maxsize
 
-        for i in range(n - 1):
+        for i in range(n):
             current_sum = 0
 
-            for j in range(i + 1, n):
+            for j in range(n):
                 current_sum += self._distance(s[i][1], s[j][1])
 
             if current_sum < sum_of_distances:
@@ -54,7 +56,7 @@ class MeanShift:
 
         return median_graph
 
-    def farthest(self, s: list, seed: int):
+    def farthest(self, s: list, seed: int) -> int:
         n = len(s)
         farthest = None
         distance = -1
@@ -68,15 +70,18 @@ class MeanShift:
 
     def fit(self):
         s = list(self._graphs.items())
+        clusters = []
 
-        while n := len(s) > 0:
+        print(len(s))
+        while len(s) > 0:
             median_graph: int = self.median_graph(s)
 
             farthest: int = self.farthest(s, median_graph)
             prototype: int = self.farthest(s, farthest)
 
             prototype_path, prototype_graph = s[prototype]
-            cluster = Cluster(prototype_graph)
+            cluster = Cluster()
+            cluster.set_centroid((prototype_path, prototype_graph))
 
             while True:
                 any_added = False
@@ -93,18 +98,22 @@ class MeanShift:
                             break
 
                     if is_cluster_member:
-                        cluster.add_graph(graph)
+                        cluster.add_entry((path, graph))
                         any_added = True
 
+                cluster_entries: list[tuple] = cluster.get_graphs()
+                cluster_paths: set = {g[0] for g in cluster_entries}
                 if any_added:
-                    cluster_graphs = cluster.get_graphs()
-                    prototype = self.median_graph(cluster_graphs)
+                    prototype: int = self.median_graph(cluster_entries)
 
-                    prototype_path, prototype_graph = cluster_graphs[prototype]
-                    cluster = Cluster(prototype_graph)
+                    prototype_path, prototype_graph = cluster_entries[prototype]
+                    cluster = Cluster()
+                    cluster.set_centroid((prototype_path, prototype_graph))
                 else:
-                    # TODO
-                    break
+                    clusters.append(prototype_path)
+                    s = [g for g in s if g[0] not in cluster_paths]
+
+        self._clusters = clusters
 
     def clusters(self):
         if not self._clusters:

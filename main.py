@@ -1,10 +1,9 @@
 from graph.dataset.pickle import load_graphs
 from graph.distances import euclidean
+from indexing.clusters import MeanShift
 
 graphs = load_graphs("embeddings/graphs_pickled.p")
-print(len(graphs))
-g1 = graphs["021541071.jpg"]
-g2 = graphs["025246930.jpg"]
 
-print(g1)
-print(euclidean(g1, g2))
+mean_shift = MeanShift(graphs=graphs, distance_function=euclidean, threshold=50.0)
+mean_shift.fit()
+clusters = mean_shift.clusters()

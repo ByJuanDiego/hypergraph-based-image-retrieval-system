@@ -17,11 +17,14 @@ class Cluster:
         self._centroid = graph[1]
         self._graphs = [graph]
 
-    def add_entry(self, graph: tuple):
-        self._graphs.append(graph)
+    def add_entry(self, entry: tuple):
+        self._graphs.append(entry)
 
     def get_graphs(self):
         return self._graphs
+
+    def size(self):
+        return len(self._graphs)
 
 
 class MeanShift:
@@ -72,10 +75,8 @@ class MeanShift:
         s = list(self._graphs.items())
         clusters = []
 
-        print(len(s))
         while len(s) > 0:
             median_graph: int = self.median_graph(s)
-
             farthest: int = self.farthest(s, median_graph)
             prototype: int = self.farthest(s, farthest)
 
@@ -84,8 +85,6 @@ class MeanShift:
             cluster.set_centroid((prototype_path, prototype_graph))
 
             while True:
-                any_added = False
-
                 for path, graph in s:
                     if prototype_path == path:
                         continue
@@ -99,19 +98,19 @@ class MeanShift:
 
                     if is_cluster_member:
                         cluster.add_entry((path, graph))
-                        any_added = True
 
                 cluster_entries: list[tuple] = cluster.get_graphs()
                 cluster_paths: set = {g[0] for g in cluster_entries}
-                if any_added:
-                    prototype: int = self.median_graph(cluster_entries)
 
-                    prototype_path, prototype_graph = cluster_entries[prototype]
-                    cluster = Cluster()
-                    cluster.set_centroid((prototype_path, prototype_graph))
-                else:
+                new_prototype: int = self.median_graph(cluster_entries)
+                new_prototype_path, new_prototype_graph = cluster_entries[new_prototype]
+
+                if new_prototype_graph == prototype_graph:
                     clusters.append(prototype_path)
                     s = [g for g in s if g[0] not in cluster_paths]
+                else:
+                    cluster = Cluster()
+                    cluster.set_centroid((new_prototype_path, new_prototype_graph))
 
         self._clusters = clusters
 

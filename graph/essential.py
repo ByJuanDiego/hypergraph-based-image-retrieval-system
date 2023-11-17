@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 
 class Graph:
@@ -10,6 +10,9 @@ class Graph:
         self._vertexes = vertexes.copy()
         self._edges = edges.copy()
         self._path = path
+
+    def __repr__(self):
+        return f"Path: {self._path}\nVertexes: {self._vertexes}\nEdges: {self._edges}\n"
 
     def add_vertex(self, vertex: Tuple[float, float, float, float]):
         self._vertexes.append(vertex)
@@ -45,3 +48,32 @@ class Graph:
     @property
     def edges_count(self):
         return len(self._edges)
+
+
+class Cluster:
+    _centroid: Union[Graph, None]
+    _graphs: List[Graph]
+
+    def __init__(self) -> None:
+        self._centroid = None
+        self._graphs = []
+
+    def clear(self) -> None:
+        self._graphs.clear()
+        self._centroid = None
+
+    def set_centroid(self, graph: Graph) -> None:
+        self._centroid = graph
+        self._graphs = [graph]
+
+    def add_graph(self, graph: Graph) -> None:
+        self._graphs.append(graph)
+
+    def get_graphs(self) -> List[Graph]:
+        return self._graphs
+
+    def get_centroid(self) -> Graph:
+        return self._centroid
+
+    def size(self) -> int:
+        return len(self._graphs)

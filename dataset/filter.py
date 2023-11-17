@@ -7,23 +7,23 @@ from graph.embeddings.full_body_3D import get_pose_model
 
 
 def filter_dataset(
-        dataset_path: str,
-        new_dataset_path: str,
+        dataset_dir: str,
+        new_dataset_dir: str,
         threshold: float = 0.8,
         delay: float = 0.5
 ):
     pose_model = get_pose_model()
-    paths = os.listdir(dataset_path)
+    paths = os.listdir(dataset_dir)
     i = 0
 
     for image_path in paths:
         i += 1
 
         try:
-            total_path = dataset_path + "/" + image_path
+            total_path = dataset_dir + "/" + image_path
             _ = get_graph_from_full_body_image(path=total_path, pose_model=pose_model, threshold=threshold)
 
-            new_total_path = new_dataset_path + "/" + image_path
+            new_total_path = new_dataset_dir + "/" + image_path
             subprocess.run(["cp", total_path, new_total_path])
 
         except AttributeError:

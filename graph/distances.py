@@ -6,7 +6,11 @@ def edit_distance(graph1: Graph, graph2: Graph):
     return 0
 
 
-def euclidean(graph1: Graph, graph2: Graph):
+def cosine_distance(graph1: Graph, graph2: Graph):
+    return 0
+
+
+def euclidean_distance(graph1: Graph, graph2: Graph):
     n_vertexes = graph1.vertexes_count
 
     distance = 0
@@ -17,3 +21,7 @@ def euclidean(graph1: Graph, graph2: Graph):
         distance += sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2) + pow(z1 - z2, 2))
 
     return distance
+
+
+def weighted_distance(graph1: Graph, graph2: Graph):
+    return cosine_distance(graph1, graph2) + euclidean_distance(graph1, graph2)

@@ -1,17 +1,18 @@
 from math import pow, sqrt
+from graph.essential import Graph
 
 
-def edit_distance(graph1: tuple, graph2: tuple):
+def edit_distance(graph1: Graph, graph2: Graph):
     return 0
 
 
-def euclidean(graph1: tuple[list, list], graph2: tuple[list, list]):
-    n_vertexes = len(graph1[0])
+def euclidean(graph1: Graph, graph2: Graph):
+    n_vertexes = graph1.vertexes_count
 
     distance = 0
     for v in range(n_vertexes):
-        x1, y1, z1 = graph1[0][v]
-        x2, y2, z2 = graph2[0][v]
+        x1, y1, z1, _ = graph1.get_vertex(v)
+        x2, y2, z2, _ = graph2.get_vertex(v)
 
         distance += sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2) + pow(z1 - z2, 2))
 

@@ -1,6 +1,6 @@
 /venv/
 /.idea/
 /images/
-/dataset/
+/images/
 /pickles/
 /mpii_human_pose_v1.tar.gz

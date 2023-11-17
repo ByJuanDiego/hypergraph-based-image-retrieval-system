@@ -2,32 +2,36 @@ import sys
 import pickle
 
 
-class Cluster:
-    _centroid: tuple | None = None
-    _graphs: list[tuple[str, tuple]]
+from typing import List, Annotated, Union
+from graph.essential import Graph
 
-    def __init__(self):
+
+class Cluster:
+    _centroid: Union[Graph, None]
+    _graphs: List[Graph]
+
+    def __init__(self) -> None:
         self._centroid = None
         self._graphs = []
 
-    def clear(self):
+    def clear(self) -> None:
         self._graphs.clear()
         self._centroid = None
 
-    def set_centroid(self, graph: tuple):
+    def set_centroid(self, graph: Graph) -> None:
         self._centroid = graph
         self._graphs = [graph]
 
-    def add_entry(self, entry: tuple):
-        self._graphs.append(entry)
+    def add_graph(self, graph: Graph) -> None:
+        self._graphs.append(graph)
 
-    def get_entries(self):
+    def get_graphs(self) -> List[Graph]:
         return self._graphs
 
-    def get_centroid(self):
+    def get_centroid(self) -> Graph:
         return self._centroid
 
-    def size(self):
+    def size(self) -> int:
         return len(self._graphs)
 
 
@@ -83,16 +87,13 @@ class MeanShift:
         while len(s) > 0:
             print(len(s))
             median_graph: int = self.median_graph(s)
-            print("median graph computed")
-            farthest: int = self.farthest(s, median_graph)
 
-            prototype: int = self.farthest(s, farthest)
+            prototype: int = self.farthest(s, median_graph)
             prototype_path, prototype_graph = s[prototype]
 
             cluster = Cluster()
             cluster.set_centroid((prototype_path, prototype_graph))
 
-            i: int = 0
             while True:
                 for path, graph in s:
                     if path == prototype_path:
@@ -100,7 +101,7 @@ class MeanShift:
 
                     is_cluster_member = True
 
-                    for _, cluster_member_graph in cluster.get_entries():
+                    for cluster_member_graph in cluster.get_entries():
                         if self._distance(graph, cluster_member_graph) > self._threshold:
                             is_cluster_member = False
                             break
@@ -116,17 +117,15 @@ class MeanShift:
 
                 if new_prototype_path == prototype_path:
                     self._centroids.add(prototype_path)
-                    print(f"i: {i}, prot_path: {prototype_path}, size: {cluster.size()}")
+                    print(f"path: {prototype_path}, size: {cluster.size()}")
                     s = [g for g in s if g[0] not in cluster_paths]
                     break
 
-                print(f"i: {i}, {cluster.size()}")
+                print(f"size: {cluster.size()}")
 
                 prototype_path, prototype_graph = new_prototype_path, new_prototype_graph
                 cluster = Cluster()
                 cluster.set_centroid((prototype_path, prototype_graph))
-
-                i += 1
 
     def get_centroids(self):
         if not self._centroids:
@@ -172,3 +171,23 @@ class MeanShift:
             print(cluster.get_centroid()[0])
             for path, _ in cluster.get_entries():
                 print(f"\t{path}")
+
+    def knn(self, query):
+        nearest = None
+        distance = sys.maxsize
+
+        selected_cluster = None
+        for cluster in self._clusters:
+            if cluster.get_centroid()[0] == query:
+                selected_cluster = cluster
+
+        for path, graph in selected_cluster.get_entries():
+            if path == query:
+                continue
+
+            d = self._distance(selected_cluster.get_centroid()[1], graph)
+            if d < distance:
+                distance = d
+                nearest = path
+
+        return nearest

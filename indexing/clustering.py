@@ -15,7 +15,7 @@ class Cluster:
         self._centroid = None
 
     def set_centroid(self, graph: tuple):
-        self._centroid = graph[1]
+        self._centroid = graph
         self._graphs = [graph]
 
     def add_entry(self, entry: tuple):
@@ -78,7 +78,7 @@ class MeanShift:
 
     def fit_centroids(self):
         s = list(self._graphs.items())
-        clusters = set()
+        self._centroids = set()
 
         while len(s) > 0:
             print(len(s))
@@ -115,7 +115,7 @@ class MeanShift:
                 new_prototype_path, new_prototype_graph = cluster_entries[new_prototype]
 
                 if new_prototype_path == prototype_path:
-                    clusters.add(prototype_path)
+                    self._centroids.add(prototype_path)
                     print(f"i: {i}, prot_path: {prototype_path}, size: {cluster.size()}")
                     s = [g for g in s if g[0] not in cluster_paths]
                     break
@@ -128,11 +128,9 @@ class MeanShift:
 
                 i += 1
 
-        self._centroids = clusters
-
     def get_centroids(self):
         if not self._centroids:
-            raise AttributeError("The clusters are empty!")
+            raise AttributeError("The clusters.p are empty!")
         return self._centroids
 
     def save_centroids(self, filename):
@@ -151,9 +149,11 @@ class MeanShift:
             cluster.set_centroid((centroid_path, self._graphs[centroid_path]))
             self._clusters.append(cluster)
 
-        for path, graph in self._graphs:
-            for cluster in self._clusters:
-                if self._distance(graph, cluster.get_centroid()) < self._threshold:
+        for cluster in self._clusters:
+            for path, graph in self._graphs.items():
+                if path == cluster.get_centroid()[0]:
+                    continue
+                if self._distance(graph, cluster.get_centroid()[1]) < self._threshold:
                     cluster.add_entry((path, graph))
 
     def get_clusters(self):
@@ -166,3 +166,9 @@ class MeanShift:
     def load_clusters(self, filename):
         with open(filename, "rb") as file:
             self._clusters = pickle.load(file)
+
+    def pretty_print(self):
+        for cluster in self._clusters:
+            print(cluster.get_centroid()[0])
+            for path, _ in cluster.get_entries():
+                print(f"\t{path}")

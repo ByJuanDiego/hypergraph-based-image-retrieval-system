@@ -12,4 +12,8 @@ mean_shift = MeanShift(graphs=graphs, distance_function=euclidean, threshold=thr
 
 mean_shift.load_centroids("pickles/centroids.p")
 
-mean_shift.fit_clusters()
+# mean_shift.fit_clusters()
+# mean_shift.save_clusters("pickles/clusters.p")
+
+mean_shift.load_clusters("pickles/clusters.p")
+mean_shift.pretty_print()

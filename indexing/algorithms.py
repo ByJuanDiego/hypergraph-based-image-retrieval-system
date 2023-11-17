@@ -41,7 +41,11 @@ class MeanShift:
 
         return median_graph_index
 
-    def farthest(self, s: List[Graph], seed: int) -> int:
+    def farthest(
+            self,
+            s: List[Graph],
+            seed: int
+    ) -> int:
         n: int = len(s)
         farthest_graph_index: int = -1
         distance: float = -1
@@ -53,7 +57,9 @@ class MeanShift:
 
         return farthest_graph_index
 
-    def fit(self):
+    def fit(
+            self
+    ):
         s: List[Graph] = self._graphs.copy()
         self._centroids.clear()
 
@@ -100,13 +106,23 @@ class MeanShift:
                 cluster = Cluster()
                 cluster.set_centroid(prototype_graph)
 
-    def get_centroids(self):
+    def get_centroids(
+            self
+    ):
         return self._centroids
 
-    def save_centroids(self, dir_path, filename):
+    def save_centroids(
+            self,
+            dir_path,
+            filename
+    ):
         with open(dir_path + "/" + filename, "wb") as file:
             pickle.dump(self.get_centroids(), file)
 
-    def load_centroids(self, dir_path, filename):
+    def load_centroids(
+            self,
+            dir_path,
+            filename
+    ):
         with open(dir_path + "/" + filename, "rb") as file:
             self._centroids = pickle.load(file)

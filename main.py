@@ -1,10 +1,10 @@
 from dataset.pickle import load_dataset_in_batches
 from graph.distances import euclidean_distance
-from indexing.hypergraph import HyperGraph
-from indexing.meanshift import MeanShift
+from indexing.indexes import HyperGraph
+from indexing.algorithms import MeanShift
 
 
-graphs = load_dataset_in_batches("pickles")
+graphs = load_dataset_in_batches("pickles/graphs")
 
 threshold = 10.0
 

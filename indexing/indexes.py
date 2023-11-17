@@ -11,13 +11,21 @@ class HyperGraph:
     _distance: Callable[[Graph, Graph], float]
     _threshold: float
 
-    def __init__(self, graphs, centroids, distance, threshold):
+    def __init__(
+            self,
+            graphs,
+            centroids,
+            distance,
+            threshold
+    ):
         self._graphs = graphs
         self._centroids = centroids
         self._distance = distance
         self._threshold = threshold
 
-    def fit(self):
+    def fit(
+            self
+    ):
         self._clusters = []
 
         for centroid in self._centroids:
@@ -32,18 +40,30 @@ class HyperGraph:
                 if self._distance(graph, cluster.get_centroid()) < self._threshold:
                     cluster.add_graph(graph)
 
-    def get_clusters(self):
+    def get_clusters(
+            self
+    ):
         return self._clusters
 
-    def save_clusters(self, dir_path, filename):
+    def save_clusters(
+            self,
+            dir_path,
+            filename
+    ):
         with open(dir_path + "/" + filename, "wb") as file:
             pickle.dump(self.get_clusters(), file)
 
-    def load_clusters(self, dir_path, filename):
+    def load_clusters(
+            self,
+            dir_path,
+            filename
+    ):
         with open(dir_path + "/" + filename, "rb") as file:
             self._clusters = pickle.load(file)
 
-    def pretty_print(self):
+    def pretty_print(
+            self
+    ):
         for cluster in self._clusters:
             print(cluster.get_centroid().get_path())
             for graph in cluster.get_graphs():

@@ -18,7 +18,7 @@ class MeanShift:
             distance_function: Callable[[Graph, Graph], float],
             threshold: float
     ) -> None:
-        def cache_dist(g1, g2):
+        def cache_dist(g1: Graph, g2: Graph) -> float:
             if (g1._path, g2._path) in self._distance_cache:
                 return self._distance_cache[(g1._path, g2._path)]
             dist = distance_function(g1, g2)
@@ -28,7 +28,7 @@ class MeanShift:
         self._distance_cache = {}
         self._threshold = threshold
         self._graphs = graphs
-        self._distance = lambda g1, g2: cache_dist(g1, g2)
+        self._distance = cache_dist
 
     def calculate_distance(self, args):
         i, s = args

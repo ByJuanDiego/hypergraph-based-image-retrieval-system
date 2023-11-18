@@ -64,7 +64,7 @@ class HyperGraph:
     def pretty_print(
             self
     ):
-        for cluster in self._clusters:
-            # print(f"{cluster.get_centroid().get_path()}, {len(cluster.get_graphs())}")
-            if cluster.get_centroid().get_path() == "images/032059391.jpg":
-                [print(graph.get_path()) for graph in cluster.get_graphs()]
+        for cluster in self._clusters[:5]:
+            print(f"{cluster.get_centroid().get_path()}, {list(map(lambda x: x._path, cluster.get_graphs()))}")
+            # if cluster.get_centroid().get_path() == "images/032177057.jpg":
+            #     [print(graph.get_path()) for graph in cluster.get_graphs()]

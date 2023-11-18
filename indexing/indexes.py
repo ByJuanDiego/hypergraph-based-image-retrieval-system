@@ -65,6 +65,6 @@ class HyperGraph:
             self
     ):
         for cluster in self._clusters:
-            print(cluster.get_centroid().get_path())
-            for graph in cluster.get_graphs():
-                print(f"\t{graph.get_path()}")
+            # print(f"{cluster.get_centroid().get_path()}, {len(cluster.get_graphs())}")
+            if cluster.get_centroid().get_path() == "images/032059391.jpg":
+                [print(graph.get_path()) for graph in cluster.get_graphs()]

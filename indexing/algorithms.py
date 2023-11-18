@@ -7,8 +7,8 @@ from graph.essential import Graph, Cluster
 
 class MeanShift:
     _threshold: float = 0
-    _centroids: List[Graph] = {}
-    _graphs: List[Graph] = {}
+    _centroids: List[Graph] = []
+    _graphs: List[Graph] = []
     _distance: Callable[[Graph, Graph], float] = None
 
     def __init__(
@@ -36,7 +36,7 @@ class MeanShift:
                 current_sum += self._distance(s[i], s[j])
 
             if current_sum < sum_of_distances:
-                median_graph_index = s[i].get_path()
+                median_graph_index = i
                 sum_of_distances = current_sum
 
         return median_graph_index

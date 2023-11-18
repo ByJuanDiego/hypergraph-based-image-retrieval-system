@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import sys
 import pickle
 
@@ -17,9 +18,27 @@ class MeanShift:
             distance_function: Callable[[Graph, Graph], float],
             threshold: float
     ) -> None:
+        def cache_dist(g1, g2):
+            if (g1._path, g2._path) in self._distance_cache:
+                return self._distance_cache[(g1._path, g2._path)]
+            dist = distance_function(g1, g2)
+            self._distance_cache[(g2._path, g1._path)], self._distance_cache[(g1._path, g2._path)] = dist, dist
+            return dist
+
+        self._distance_cache = {}
         self._threshold = threshold
         self._graphs = graphs
-        self._distance = distance_function
+        self._distance = lambda g1, g2: cache_dist(g1, g2)
+
+    def calculate_distance(self, args):
+        i, s = args
+        current_sum = 0
+        n = len(s)
+
+        for j in range(n):
+            current_sum += self._distance(s[i], s[j])
+
+        return i, current_sum
 
     def median_graph(
             self,
@@ -27,17 +46,12 @@ class MeanShift:
     ) -> int:
         n: int = len(s)
         median_graph_index: int = -1
-        sum_of_distances: float = sys.maxsize
 
-        for i in range(n):
-            current_sum = 0
+        with ThreadPoolExecutor() as executor:
+            futures = [(i, s) for i in range(n)]
+            results = executor.map(self.calculate_distance, futures)
 
-            for j in range(n):
-                current_sum += self._distance(s[i], s[j])
-
-            if current_sum < sum_of_distances:
-                median_graph_index = i
-                sum_of_distances = current_sum
+        median_graph_index, _ = min(results, key=lambda x: x[1])
 
         return median_graph_index
 

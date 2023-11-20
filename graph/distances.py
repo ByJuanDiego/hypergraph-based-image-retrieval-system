@@ -1,16 +1,32 @@
-from math import pow, sqrt
+from math import pow, sqrt, acos
+from numpy import array, dot
+from numpy.linalg import norm
 from graph.essential import Graph
 
 
-def edit_distance(graph1: Graph, graph2: Graph):
-    return 0
+def cosine_distance(
+        graph1: Graph,
+        graph2: Graph
+) -> float:
+    edges = graph1.get_edges()
+    distance = 0
+
+    for u, v in edges:
+        vertex_u1, vertex_v1 = graph1.get_vertex(u), graph1.get_vertex(v)
+        vertex_u2, vertex_v2 = graph2.get_vertex(u), graph2.get_vertex(v)
+
+        v1 = array([(vertex_v1[0] - vertex_u1[0]), (vertex_v1[1] - vertex_u1[1]), (vertex_v1[2] - vertex_u1[2])])
+        v2 = array([(vertex_v2[0] - vertex_u2[0]), (vertex_v2[1] - vertex_u2[1]), (vertex_v2[2] - vertex_u2[2])])
+
+        distance += acos(min(dot(v1, v2) / norm(v1) / norm(v2), 1))
+
+    return distance
 
 
-def cosine_distance(graph1: Graph, graph2: Graph):
-    return 0
-
-
-def euclidean_distance(graph1: Graph, graph2: Graph):
+def euclidean_distance(
+        graph1: Graph,
+        graph2: Graph
+) -> float:
     n_vertexes = graph1.vertexes_count
 
     distance = 0
@@ -23,5 +39,8 @@ def euclidean_distance(graph1: Graph, graph2: Graph):
     return distance
 
 
-def weighted_distance(graph1: Graph, graph2: Graph):
-    return cosine_distance(graph1, graph2) + euclidean_distance(graph1, graph2)
+def weighted_distance(
+        graph1: Graph,
+        graph2: Graph
+) -> float:
+    return cosine_distance(graph1, graph2) + sqrt(euclidean_distance(graph1, graph2))

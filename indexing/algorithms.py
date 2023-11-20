@@ -1,8 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
-import sys
 import pickle
 
-from typing import Set, Callable, List
+from typing import Set, Callable, List, Dict, Tuple
 from graph.essential import Graph, Cluster
 
 
@@ -11,6 +10,7 @@ class MeanShift:
     _centroids: List[Graph] = []
     _graphs: List[Graph] = []
     _distance: Callable[[Graph, Graph], float] = None
+    _distances_cache: Dict[Tuple[str, str], float] = {}
 
     def __init__(
             self,
@@ -18,34 +18,40 @@ class MeanShift:
             distance_function: Callable[[Graph, Graph], float],
             threshold: float
     ) -> None:
-        def cache_dist(g1: Graph, g2: Graph) -> float:
-            if (g1._path, g2._path) in self._distance_cache:
-                return self._distance_cache[(g1._path, g2._path)]
+
+        def optimized_distance(g1: Graph, g2: Graph) -> float:
+            if (g1.get_path(), g2.get_path()) in self._distances_cache:
+                return self._distances_cache[(g1.get_path(), g2.get_path())]
+
             dist = distance_function(g1, g2)
-            self._distance_cache[(g2._path, g1._path)], self._distance_cache[(g1._path, g2._path)] = dist, dist
+
+            self._distances_cache[(g2.get_path(), g1.get_path())] = dist
+            self._distances_cache[(g1.get_path(), g2.get_path())] = dist
             return dist
 
-        self._distance_cache = {}
         self._threshold = threshold
         self._graphs = graphs
-        self._distance = cache_dist
+        self._distance = optimized_distance
+        self._distances_cache = {}
 
-    def calculate_distance(self, args):
+    def calculate_distance(
+            self,
+            args: Tuple[int, List[Graph]]
+    ) -> Tuple[int, float]:
         i, s = args
-        current_sum = 0
+        distances_sum = 0
         n = len(s)
 
         for j in range(n):
-            current_sum += self._distance(s[i], s[j])
+            distances_sum += self._distance(s[i], s[j])
 
-        return i, current_sum
+        return i, distances_sum
 
     def median_graph(
             self,
             s: List[Graph]
     ) -> int:
         n: int = len(s)
-        median_graph_index: int = -1
 
         with ThreadPoolExecutor() as executor:
             futures = [(i, s) for i in range(n)]
@@ -73,12 +79,11 @@ class MeanShift:
 
     def fit(
             self
-    ):
+    ) -> None:
         s: List[Graph] = self._graphs.copy()
         self._centroids.clear()
 
         while len(s) > 0:
-            print(len(s))
             median_graph: int = self.median_graph(s)
 
             prototype_index: int = self.farthest(s, median_graph)
@@ -110,11 +115,8 @@ class MeanShift:
 
                 if new_prototype_graph.get_path() == prototype_graph.get_path():
                     self._centroids.append(prototype_graph)
-                    print(f"path: {prototype_graph.get_path()}, size: {cluster.size()}")
                     s = [g for g in s if g.get_path() not in cluster_paths]
                     break
-
-                print(f"size: {cluster.size()}")
 
                 prototype_graph = new_prototype_graph
                 cluster = Cluster()
@@ -122,21 +124,21 @@ class MeanShift:
 
     def get_centroids(
             self
-    ):
+    ) -> List[Graph]:
         return self._centroids
 
     def save_centroids(
             self,
-            dir_path,
-            filename
-    ):
+            dir_path: str,
+            filename: str
+    ) -> None:
         with open(dir_path + "/" + filename, "wb") as file:
             pickle.dump(self.get_centroids(), file)
 
     def load_centroids(
             self,
-            dir_path,
-            filename
-    ):
+            dir_path: str,
+            filename: str
+    ) -> None:
         with open(dir_path + "/" + filename, "rb") as file:
             self._centroids = pickle.load(file)

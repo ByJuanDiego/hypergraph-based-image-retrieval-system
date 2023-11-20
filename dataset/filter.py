@@ -11,7 +11,7 @@ def filter_dataset(
         new_dataset_dir: str,
         threshold: float = 0.8,
         delay: float = 0.5
-):
+) -> None:
     pose_model = get_pose_model()
     paths = os.listdir(dataset_dir)
     i = 0

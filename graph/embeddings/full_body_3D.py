@@ -4,14 +4,19 @@ import cv2
 from graph.essential import Graph
 
 
-def get_pose_model():
+def get_pose_model(
+) -> mp.solutions.pose.Pose:
     return mp.solutions.pose.Pose(
         static_image_mode=True,
         model_complexity=2
     )
 
 
-def get_graph_from_full_body_image(path: str, pose_model: mp.solutions.pose.Pose, threshold: float) -> Graph:
+def get_graph_from_full_body_image(
+        path: str,
+        pose_model: mp.solutions.pose.Pose,
+        threshold: float
+) -> Graph:
     image = cv2.imread(path)
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 

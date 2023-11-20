@@ -8,12 +8,16 @@ from graph.essential import Graph
 from graph.embeddings.full_body_3D import get_graph_from_full_body_image, get_pose_model
 
 
-def dump_graphs(graphs: List[Graph], filename: str) -> None:
+def dump_graphs(
+        graphs: List[Graph], filename: str
+) -> None:
     with open(filename, 'wb') as pickle_file:
         pickle.dump(graphs, pickle_file)
 
 
-def load_graphs(filename: str) -> List[Graph]:
+def load_graphs(
+        filename: str
+) -> List[Graph]:
     with open(filename, 'rb') as pickle_file:
         graphs = pickle.load(pickle_file)
         return graphs
@@ -62,7 +66,9 @@ def dump_dataset_in_batches(
     dump_graphs(graphs, f"{pickle_dir}/graphs_{current_batch_id}.p")
 
 
-def load_dataset_in_batches(pickle_dir: str) -> List[Graph]:
+def load_dataset_in_batches(
+        pickle_dir: str
+) -> List[Graph]:
     graphs: List[Graph] = []
     paths = os.listdir(pickle_dir)
 

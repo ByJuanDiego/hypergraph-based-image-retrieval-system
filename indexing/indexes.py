@@ -17,7 +17,7 @@ class HyperGraph:
             centroids,
             distance,
             threshold
-    ):
+    ) -> None:
         self._graphs = graphs
         self._centroids = centroids
         self._distance = distance
@@ -25,7 +25,7 @@ class HyperGraph:
 
     def fit(
             self
-    ):
+    ) -> None:
         self._clusters = []
 
         for centroid in self._centroids:
@@ -42,14 +42,14 @@ class HyperGraph:
 
     def get_clusters(
             self
-    ):
+    ) -> List[Cluster]:
         return self._clusters
 
     def save_clusters(
             self,
             dir_path,
             filename
-    ):
+    ) -> None:
         with open(dir_path + "/" + filename, "wb") as file:
             pickle.dump(self.get_clusters(), file)
 
@@ -57,14 +57,13 @@ class HyperGraph:
             self,
             dir_path,
             filename
-    ):
+    ) -> None:
         with open(dir_path + "/" + filename, "rb") as file:
             self._clusters = pickle.load(file)
 
     def pretty_print(
             self
-    ):
-        for cluster in self._clusters[:5]:
-            print(f"{cluster.get_centroid().get_path()}, {list(map(lambda x: x._path, cluster.get_graphs()))}")
-            # if cluster.get_centroid().get_path() == "images/032177057.jpg":
-            #     [print(graph.get_path()) for graph in cluster.get_graphs()]
+    ) -> None:
+        for cluster in self.get_clusters()[20:30]:
+            print(f"{cluster.get_centroid().get_path()}")
+            print(f"{list(map(lambda graph: graph.get_path(), cluster.get_graphs()))}")

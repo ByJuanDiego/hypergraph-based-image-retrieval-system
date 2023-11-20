@@ -45,6 +45,11 @@ class HyperGraph:
     ) -> List[Cluster]:
         return self._clusters
 
+    def get_distance_callable(
+            self
+    ) -> Callable[[Graph, Graph], float]:
+        return self._distance
+
     def save_clusters(
             self,
             dir_path,

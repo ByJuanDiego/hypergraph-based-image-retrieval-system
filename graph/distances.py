@@ -4,7 +4,7 @@ from numpy.linalg import norm
 from graph.essential import Graph
 
 
-def cosine_distance(
+def angle_distance(
         graph1: Graph,
         graph2: Graph
 ) -> float:
@@ -43,4 +43,4 @@ def weighted_distance(
         graph1: Graph,
         graph2: Graph
 ) -> float:
-    return cosine_distance(graph1, graph2) + sqrt(euclidean_distance(graph1, graph2))
+    return angle_distance(graph1, graph2) + sqrt(euclidean_distance(graph1, graph2))

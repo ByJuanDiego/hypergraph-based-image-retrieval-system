@@ -2,12 +2,17 @@ from typing import List
 from dataset.pickle import load_dataset_in_batches
 from graph.distances import weighted_distance
 from graph.essential import Graph
+from graph.statistics.graphic import save_graph_distances, load_graph_distances, graph_distances
 from indexing.indexes import HyperGraph
 from indexing.algorithms import MeanShift
 
 graphs: List[Graph] = load_dataset_in_batches("pickles/graphs")
 
-threshold = 20
+save_graph_distances(graphs, weighted_distance)
+distances = load_graph_distances()
+graph_distances(distances)
+
+#threshold = 20
 
 # mean_shift = MeanShift(graphs, weighted_distance, threshold)
 
@@ -24,9 +29,9 @@ threshold = 20
 # hypergraph.pretty_print()
 
 
-hypergraph = HyperGraph(graphs, centroids=[], distance=weighted_distance, threshold=threshold)
-hypergraph.load_clusters("pickles/20", "clusters.p")
+#hypergraph = HyperGraph(graphs, centroids=[], distance=weighted_distance, threshold=threshold)
+#hypergraph.load_clusters("pickles/20", "clusters.p")
 # hypergraph.save_clusters("pickles/20", "clusters.p")
 # hypergraph.load_clusters("pickles/20", "clusters.p")
 
-hypergraph.pretty_print()
+#hypergraph.pretty_print()

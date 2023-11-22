@@ -15,8 +15,9 @@ class MeanShift:
     def __init__(
             self,
             graphs: List[Graph],
+            threshold: float,
             distance_function: Callable[[Graph, Graph], float],
-            threshold: float
+            distance_cache: Dict[Tuple[str, str], float] = None
     ) -> None:
 
         def optimized_distance(g1: Graph, g2: Graph) -> float:
@@ -32,7 +33,9 @@ class MeanShift:
         self._threshold = threshold
         self._graphs = graphs
         self._distance = optimized_distance
-        self._distances_cache = {}
+
+        if distance_cache is not None:
+            self._distances_cache = distance_cache
 
     def calculate_distance(
             self,
@@ -43,6 +46,8 @@ class MeanShift:
         n = len(s)
 
         for j in range(n):
+            if i == j:
+                continue
             distances_sum += self._distance(s[i], s[j])
 
         return i, distances_sum
@@ -85,6 +90,7 @@ class MeanShift:
 
         while len(s) > 0:
             median_graph: int = self.median_graph(s)
+            print(f"median graph: {len(s)}")
 
             prototype_index: int = self.farthest(s, median_graph)
             prototype_graph: Graph = s[prototype_index]
@@ -115,6 +121,7 @@ class MeanShift:
 
                 if new_prototype_graph.get_path() == prototype_graph.get_path():
                     self._centroids.append(prototype_graph)
+                    print(f"new centroid... {cluster.size()}")
                     s = [g for g in s if g.get_path() not in cluster_paths]
                     break
 

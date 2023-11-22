@@ -1,10 +1,10 @@
-from math import pow, sqrt, acos
+from math import pow, sqrt
 from numpy import array, dot
 from numpy.linalg import norm
 from graph.essential import Graph
 
 
-def angle_distance(
+def cosine_score(
         graph1: Graph,
         graph2: Graph
 ) -> float:
@@ -18,7 +18,7 @@ def angle_distance(
         v1 = array([(vertex_v1[0] - vertex_u1[0]), (vertex_v1[1] - vertex_u1[1]), (vertex_v1[2] - vertex_u1[2])])
         v2 = array([(vertex_v2[0] - vertex_u2[0]), (vertex_v2[1] - vertex_u2[1]), (vertex_v2[2] - vertex_u2[2])])
 
-        distance += acos(min(dot(v1, v2) / norm(v1) / norm(v2), 1))
+        distance += (1 - dot(v1, v2) / (norm(v1) * norm(v2)))
 
     return distance
 
@@ -41,6 +41,7 @@ def euclidean_distance(
 
 def weighted_distance(
         graph1: Graph,
-        graph2: Graph
+        graph2: Graph,
+        k: float = 0.5
 ) -> float:
-    return angle_distance(graph1, graph2) + sqrt(euclidean_distance(graph1, graph2))
+    return cosine_score(graph1, graph2) + (k * euclidean_distance(graph1, graph2))

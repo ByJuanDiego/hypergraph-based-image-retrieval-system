@@ -2,7 +2,7 @@ import pickle
 import time
 import os
 
-from typing import List
+from typing import List, Dict, Callable, Tuple
 
 from graph.essential import Graph
 from graph.embeddings.full_body_3D import get_graph_from_full_body_image, get_pose_model
@@ -76,3 +76,32 @@ def load_dataset_in_batches(
         graphs += load_graphs(pickle_dir + "/" + path)
 
     return graphs
+
+
+def dump_graph_distances(
+        graphs: List[Graph],
+        distance: Callable[[Graph, Graph], float],
+        pickle_dir: str,
+        pickle_filename: str
+) -> None:
+    distances: Dict[Tuple[str, str], float] = {}
+    n: int = len(graphs)
+
+    for i in range(n):
+        for j in range(i + 1, n):
+
+            d = distance(graphs[i], graphs[j])
+
+            distances[(graphs[i].get_path(), graphs[j].get_path())] = d
+            distances[(graphs[j].get_path(), graphs[i].get_path())] = d
+
+    with open(pickle_dir + "/" + pickle_filename, "wb") as file:
+        pickle.dump(distances, file)
+
+
+def load_graph_distances(
+        pickle_dir: str,
+        pickle_filename: str
+) -> Dict[Tuple[str, str], float]:
+    with open(pickle_dir + "/" + pickle_filename, "rb") as file:
+        return pickle.load(file)

@@ -42,7 +42,9 @@ class KNN:
             graphs = sorted(cluster.get_graphs(), key=lambda g: self._distance_fn(g, query))
 
             for graph in graphs:
-                retrieval.append(graph.get_path())
+
+                if graph.get_path() not in retrieval:
+                    retrieval.append(graph.get_path())
 
                 if len(retrieval) >= k:
                     return retrieval

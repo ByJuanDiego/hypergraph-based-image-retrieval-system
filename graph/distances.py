@@ -1,4 +1,4 @@
-from math import pow, sqrt
+from math import pow, sqrt, log2
 from numpy import array, dot
 from numpy.linalg import norm
 from graph.essential import Graph
@@ -45,6 +45,13 @@ def weighted_distance(
         k: float = 0.5
 ) -> float:
     return cosine_score(graph1, graph2) + (k * euclidean_distance(graph1, graph2))
+
+
+def log_weighted_distance(
+        graph1: Graph,
+        graph2: Graph,
+) -> float:
+    return cosine_score(graph1, graph2) * log2(euclidean_distance(graph1, graph2) + 1)
 
 
 def manhattan_distance(

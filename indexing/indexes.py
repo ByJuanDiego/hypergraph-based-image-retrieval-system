@@ -1,79 +1,83 @@
 from graph.essential import Graph, Cluster
 from typing import List, Callable, Tuple
 import pickle
+from random import sample
 
 
 class HyperGraph:
-    _clusters: List[Cluster] = []
-    _overlapping: List[List[Tuple[int, float]]]
     _graphs: List[Graph]
+    _clusters: List[Cluster] = []
     _centroids: List[Graph]
     _distance: Callable[[Graph, Graph], float]
     _threshold: float
 
+    # measurements
+    _overlapping: float
+    _density: float
+
     def __init__(
             self,
             graphs,
-            centroids,
             distance,
-            threshold
+            threshold,
+            centroids
     ) -> None:
         self._graphs = graphs
         self._centroids = centroids
         self._distance = distance
         self._threshold = threshold
+        self._overlapping = 0.0
+        self._density = 0.0
 
     def fit(
             self
     ) -> None:
         self._clusters = []
+        self._overlapping = 0.0
 
-        print("--- start ---")
         for centroid in self._centroids:
             cluster = Cluster()
             cluster.set_centroid(centroid)
             self._clusters.append(cluster)
 
-        for graph in self._graphs:
-            for cluster in self._clusters:
+        for cluster in self._clusters:
+            for graph in self._graphs:
                 if graph.get_path() == cluster.get_centroid().get_path():
                     continue
                 if self._distance(graph, cluster.get_centroid()) < self._threshold:
                     cluster.add_graph(graph)
+            self._overlapping += len(cluster.get_graphs())
 
-        print("--- end1 ---")
+        n_clusters = len(self._clusters)
+        n_graphs = len(self._graphs)
 
-        # Overlapping measurements (for hyper-graph navigation purposes)
-
-        print("overlap")
-        n = len(self._clusters)
-        self._overlapping = [[] for _ in range(n)]
-
-        for i in range(n):
-            for j in range(i + 1, n):
-                c1_paths = [graph.get_path() for graph in self._clusters[i].get_graphs()]
-                c2_paths = [graph.get_path() for graph in self._clusters[j].get_graphs()]
-
-                overlap = len([path for path in c1_paths if path in c2_paths])
-
-                if overlap > 0:
-                    self._overlapping[i].append((j, overlap))
-                    self._overlapping[j].append((i, overlap))
-
-        for i in range(n):
-            self._overlapping[i].sort(key=lambda x: x[1])
-
-        print("--- end2 ---")
+        self._overlapping = self._overlapping / n_graphs
+        self._density = n_clusters / n_graphs
 
     def get_clusters(
             self
     ) -> List[Cluster]:
         return self._clusters
 
-    def get_distance_callable(
+    def get_overlapping(
+            self
+    ) -> float:
+        return self._overlapping
+
+    def get_density(
+            self
+    ) -> float:
+        return self._density
+
+    def get_distance(
             self
     ) -> Callable[[Graph, Graph], float]:
         return self._distance
+
+    def get_threshold(
+            self
+    ) -> float:
+        return self._threshold
 
     def save_clusters(
             self,
@@ -81,7 +85,7 @@ class HyperGraph:
             filename
     ) -> None:
         with open(dir_path + "/" + filename, "wb") as file:
-            data: Tuple[List[Cluster], List[List[Tuple[int, float]]]] = (self._clusters, self._overlapping)
+            data: Tuple[List[Cluster], float, float] = (self._clusters, self._overlapping, self._density)
             pickle.dump(data, file)
 
     def load_clusters(
@@ -90,20 +94,23 @@ class HyperGraph:
             filename
     ) -> None:
         with open(dir_path + "/" + filename, "rb") as file:
-            data: Tuple[List[Cluster], List[List[Tuple[int, float]]]] = pickle.load(file)
+            data: Tuple[List[Cluster], float, float] = pickle.load(file)
             self._clusters = data[0]
             self._overlapping = data[1]
+            self._density = data[2]
 
     def pretty_print(
-            self
+            self,
+            k: int = 10
     ) -> None:
-        for cluster in self.get_clusters():
 
+        for cluster in sample(self.get_clusters(), k):
             print(f"{cluster.get_centroid().get_path()}")
-            print(f"{list(map(lambda graph: graph.get_path(), cluster.get_graphs()))}")
+            for graph in cluster.get_graphs():
+                print(f"\t{graph.get_path()}")
             print()
 
-        #
-        # for x in self._overlapping:
-        #     if x:
-        #         print(x[len(x) - 1])
+        print("measurements:")
+        print(f"overlapping: {self.get_overlapping()}")
+        print(f"density: {self.get_density()}")
+        print(f"number of clusters: {len(self._clusters)}")

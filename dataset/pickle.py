@@ -15,14 +15,6 @@ def dump_graphs(
         pickle.dump(graphs, pickle_file)
 
 
-def load_graphs(
-        filename: str
-) -> List[Graph]:
-    with open(filename, 'rb') as pickle_file:
-        graphs = pickle.load(pickle_file)
-        return graphs
-
-
 def dump_dataset_in_batches(
         dataset_dir: str,
         pickle_dir: str,
@@ -66,18 +58,6 @@ def dump_dataset_in_batches(
     dump_graphs(graphs, f"{pickle_dir}/graphs_{current_batch_id}.p")
 
 
-def load_dataset_in_batches(
-        pickle_dir: str
-) -> List[Graph]:
-    graphs: List[Graph] = []
-    paths = os.listdir(pickle_dir)
-
-    for path in paths:
-        graphs += load_graphs(pickle_dir + "/" + path)
-
-    return graphs
-
-
 def dump_graph_distances(
         graphs: List[Graph],
         distance: Callable[[Graph, Graph], float],
@@ -96,6 +76,33 @@ def dump_graph_distances(
 
     with open(pickle_dir + "/" + pickle_filename, "wb") as file:
         pickle.dump(distances, file)
+
+
+def dump_centroids(
+        graphs: List[Graph], filename: str
+) -> None:
+    with open(filename, 'wb') as pickle_file:
+        pickle.dump(graphs, pickle_file)
+
+
+def load_graphs(
+        filename: str
+) -> List[Graph]:
+    with open(filename, 'rb') as pickle_file:
+        graphs = pickle.load(pickle_file)
+        return graphs
+
+
+def load_dataset_in_batches(
+        pickle_dir: str
+) -> List[Graph]:
+    graphs: List[Graph] = []
+    paths = os.listdir(pickle_dir)
+
+    for path in paths:
+        graphs += load_graphs(pickle_dir + "/" + path)
+
+    return graphs
 
 
 def load_graph_distances(

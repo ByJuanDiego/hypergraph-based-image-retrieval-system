@@ -11,11 +11,10 @@ class KNN:
     def __init__(
             self,
             hypergraph: HyperGraph,
-            threshold: float
     ) -> None:
         self._hypergraph = hypergraph
-        self._distance_fn = hypergraph.get_distance_callable()
-        self._threshold = threshold
+        self._distance_fn = hypergraph.get_distance()
+        self._threshold = hypergraph.get_threshold()
 
     def query(self, query: Graph, k: int) -> List[str]:
         if k == 0:

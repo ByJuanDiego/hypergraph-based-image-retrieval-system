@@ -1,8 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
-import pickle
 
 from typing import Callable, List, Dict, Tuple
 from graph.essential import Graph, Cluster
+from dataset.pickle import load_centroids, dump_centroids
 
 
 class MeanShift:
@@ -143,13 +143,11 @@ class MeanShift:
             dir_path: str,
             filename: str
     ) -> None:
-        with open(dir_path + "/" + filename, "wb") as file:
-            pickle.dump(self.get_centroids(), file)
+        dump_centroids(self.get_centroids(), dir_path + "/" + filename)
 
     def load_centroids(
             self,
             dir_path: str,
             filename: str
     ) -> None:
-        with open(dir_path + "/" + filename, "rb") as file:
-            self._centroids = pickle.load(file)
+        self._centroids = load_centroids(dir_path, filename)

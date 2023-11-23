@@ -89,7 +89,6 @@ def dump_graph_distances(
 
     for i in range(n):
         for j in range(i + 1, n):
-
             d = distance(graphs[i], graphs[j])
 
             distances[(graphs[i].get_path(), graphs[j].get_path())] = d
@@ -104,4 +103,12 @@ def load_graph_distances(
         pickle_filename: str
 ) -> Dict[Tuple[str, str], float]:
     with open(pickle_dir + "/" + pickle_filename, "rb") as file:
+        return pickle.load(file)
+
+
+def load_centroids(
+        dir_path: str,
+        filename: str
+) -> List[Graph]:
+    with open(dir_path + "/" + filename, "rb") as file:
         return pickle.load(file)

@@ -45,3 +45,19 @@ def weighted_distance(
         k: float = 0.5
 ) -> float:
     return cosine_score(graph1, graph2) + (k * euclidean_distance(graph1, graph2))
+
+
+def manhattan_distance(
+        graph1: Graph,
+        graph2: Graph
+) -> float:
+    n_vertexes = graph1.vertexes_count
+
+    distance = 0
+    for v in range(n_vertexes):
+        x1, y1, z1, _ = graph1.get_vertex(v)
+        x2, y2, z2, _ = graph2.get_vertex(v)
+
+        distance += abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+
+    return distance

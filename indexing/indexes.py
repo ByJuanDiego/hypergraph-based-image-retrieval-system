@@ -28,6 +28,7 @@ class HyperGraph:
     ) -> None:
         self._clusters = []
 
+        print("--- start ---")
         for centroid in self._centroids:
             cluster = Cluster()
             cluster.set_centroid(centroid)
@@ -39,6 +40,8 @@ class HyperGraph:
                     continue
                 if self._distance(graph, cluster.get_centroid()) < self._threshold:
                     cluster.add_graph(graph)
+
+        print("--- end1 ---")
 
         # Overlapping measurements (for hyper-graph navigation purposes)
 
@@ -59,6 +62,8 @@ class HyperGraph:
 
         for i in range(n):
             self._overlapping[i].sort(key=lambda x: x[1])
+
+        print("--- end2 ---")
 
     def get_clusters(
             self

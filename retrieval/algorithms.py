@@ -5,17 +5,31 @@ from indexing.indexes import HyperGraph
 
 class KNN:
     _hypergraph: HyperGraph
-    _distance: Callable[[Graph, Graph], float]
+    _distance_fn: Callable[[Graph, Graph], float]
+    _threshold: float
 
     def __init__(
             self,
-            hypergraph: HyperGraph
+            hypergraph: HyperGraph,
+            threshold: float
     ) -> None:
         self._hypergraph = hypergraph
-        self._distance = hypergraph.get_distance_callable()
+        self._distance_fn = hypergraph.get_distance_callable()
+        self._threshold = threshold
 
     def query(self, query: Graph, k: int) -> List[str]:
-        clusters = self._hypergraph.get_clusters()
+        if k == 0:
+            return []
 
-        nearest_cluster: Cluster = min(clusters, key=lambda cluster: self._distance(cluster.get_centroid(), query))
-        return []
+        retrieval: List[str] = []
+        clusters: List[Cluster] = sorted(self._hypergraph.get_clusters(),
+                                         key=lambda c: self._distance_fn(c.get_centroid(), query))
+
+        for cluster in clusters:
+            graphs = sorted(cluster.get_graphs(), key=lambda g: self._distance_fn(g, query))
+
+            for graph in graphs:
+                retrieval.append(graph.get_path())
+
+                if len(retrieval) >= k:
+                    return retrieval

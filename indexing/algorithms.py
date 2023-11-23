@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 import pickle
 
-from typing import Set, Callable, List, Dict, Tuple
+from typing import Callable, List, Dict, Tuple
 from graph.essential import Graph, Cluster
 
 
@@ -21,7 +21,7 @@ class MeanShift:
     ) -> None:
 
         def optimized_distance(g1: Graph, g2: Graph) -> float:
-            if (g1.get_path(), g2.get_path()) in self._distances_cache:
+            if self._distance is not None and (g1.get_path(), g2.get_path()) in self._distances_cache:
                 return self._distances_cache[(g1.get_path(), g2.get_path())]
 
             dist = distance_function(g1, g2)
@@ -83,7 +83,8 @@ class MeanShift:
         return farthest_graph_index
 
     def fit(
-            self
+            self,
+            max_iter: int = 100
     ) -> None:
         s: List[Graph] = self._graphs.copy()
         self._centroids.clear()
@@ -97,6 +98,8 @@ class MeanShift:
 
             cluster = Cluster()
             cluster.set_centroid(prototype_graph)
+
+            iterations: int = 0
 
             while True:
                 for graph in s:
@@ -113,16 +116,17 @@ class MeanShift:
                     if is_cluster_member:
                         cluster.add_graph(graph)
 
-                cluster_entries: List[Graph] = cluster.get_graphs()
-                cluster_paths: Set[str] = {g.get_path() for g in cluster_entries}
+                cluster_graphs: List[Graph] = cluster.get_graphs()
 
-                new_prototype_index: int = self.median_graph(cluster_entries)
-                new_prototype_graph = cluster_entries[new_prototype_index]
+                new_prototype_index: int = self.median_graph(cluster_graphs)
+                new_prototype_graph = cluster_graphs[new_prototype_index]
 
-                if new_prototype_graph.get_path() == prototype_graph.get_path():
+                iterations += 1
+
+                if new_prototype_graph.get_path() == prototype_graph.get_path() or iterations >= max_iter:
                     self._centroids.append(prototype_graph)
-                    print(f"new centroid... {cluster.size()}")
-                    s = [g for g in s if g.get_path() not in cluster_paths]
+                    print(f"new centroid... {cluster.size()} elements on {iterations} iterations")
+                    s = [g for g in s if g.get_path() not in {u.get_path() for u in cluster_graphs}]
                     break
 
                 prototype_graph = new_prototype_graph

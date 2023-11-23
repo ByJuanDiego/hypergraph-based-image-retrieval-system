@@ -111,6 +111,6 @@ class HyperGraph:
             print()
 
         print("measurements:")
-        print(f"overlapping: {self.get_overlapping()}")
-        print(f"density: {self.get_density()}")
-        print(f"number of clusters: {len(self._clusters)}")
+        print(f"\toverlapping: {self.get_overlapping()}")
+        print(f"\tdensity: {self.get_density()}")
+        print(f"\tnumber of clusters: {len(self._clusters)}")

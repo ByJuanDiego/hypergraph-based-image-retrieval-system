@@ -32,3 +32,8 @@ class KNN:
 
                 if len(retrieval) >= k:
                     return retrieval
+
+
+def knn_retrieval(hyper_graph: HyperGraph, query: Graph, k: int):
+    knn = KNN(hyper_graph)
+    return knn.query(query, k)

@@ -1,5 +1,7 @@
 from tkinter import filedialog, Tk, Label, Button
 from PIL import Image, ImageTk
+from typing import List
+import os
 
 from graph.essential import Graph
 from graph.embeddings.full_body_3D import get_graph_from_full_body_image, get_pose_model
@@ -7,17 +9,17 @@ from graph.embeddings.full_body_3D import get_graph_from_full_body_image, get_po
 from indexing.indexes import HyperGraph
 from retrieval.algorithms import knn_retrieval
 
-import os
-
 
 class GUI:
-    _hypergraph: HyperGraph
+    _hyper_graphs: List[HyperGraph]
     _pose_model = get_pose_model()
 
     _query_path: str = ""
+    _labels: List[str]
 
-    def __init__(self, hypergraph: HyperGraph):
-        self._hypergraph = hypergraph
+    def __init__(self, hyper_graphs: List[HyperGraph], labels: List[str]):
+        self._hyper_graphs = hyper_graphs
+        self._labels = labels
 
     def run(self):
         def browse_files():
@@ -29,7 +31,8 @@ class GUI:
                            ("all files", "*.*")))
 
             pil_image = Image.open(filename)
-            pil_image = pil_image.resize((170, 250))
+            x, y = pil_image.size
+            pil_image = pil_image.resize((x//6, y//6))
             img = ImageTk.PhotoImage(pil_image)
 
             label = Label(window)
@@ -49,20 +52,28 @@ class GUI:
                 threshold=0.0
             )
 
-            self._result_paths = knn_retrieval(self._hypergraph, graph_query, k=4)
+            result_paths: List[List[str]] = []
+            for hyper_graph in self._hyper_graphs:
+                result_paths.append(knn_retrieval(hyper_graph, graph_query, k=4))
 
-            x, y = 400, 50
+            for i in range(len(result_paths)):
+                x, y = 450, 50
 
-            for filename in self._result_paths:
-                pil_image = Image.open(filename)
-                pil_image = pil_image.resize((250, 170))
-                img = ImageTk.PhotoImage(pil_image)
+                print(self._labels)
+                method_label = Label(window, text=self._labels[i], height=1, width=28)
+                method_label.place(x=x + (300 * i), y=y - 40)
 
-                label = Label(window)
-                label.image = img  # Retain reference to the image object
-                label.configure(image=img)  # Set the image to the label
-                label.place(x=x, y=y)  # Adjust x, y coordinates as needed
-                y += 180
+                for filename in result_paths[i]:
+                    pil_image = Image.open(filename)
+
+                    pil_image = pil_image.resize((250, 170))
+                    img = ImageTk.PhotoImage(pil_image)
+
+                    label = Label(window)
+                    label.image = img  # Retain reference to the image object
+                    label.configure(image=img)  # Set the image to the label
+                    label.place(x=x + (300 * i), y=y)  # Adjust x, y coordinates as needed
+                    y += 180
 
         # Create the root window
         window = Tk()
@@ -71,7 +82,7 @@ class GUI:
         window.title("Image Retrieval System Demo")
 
         # Set window size
-        window.geometry("1400x800")
+        window.geometry("1700x800")
 
         # Set window background color
         window.config(background="white")

@@ -119,3 +119,12 @@ def load_centroids(
 ) -> List[Graph]:
     with open(dir_path + "/" + filename, "rb") as file:
         return pickle.load(file)
+
+
+def load_activity_per_image(
+) -> Dict:
+    activities_per_image: Dict
+
+    with open("pickles/mpii_tags.pkl", "rb") as file:
+        activities_per_image = pickle.load(file)
+    return activities_per_image

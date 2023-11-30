@@ -34,20 +34,13 @@ class KNN:
         if k == 0:
             return []
 
-        retrieval: List[str] = []
-        clusters: List[Cluster] = sorted(self._hypergraph.get_clusters(),
-                                         key=lambda c: self._distance_fn(c.get_centroid(), query))
+        cluster: Cluster = min(self._hypergraph.get_clusters(),
+                               key=lambda c: self._distance_fn(c.get_centroid(), query))
 
-        for cluster in clusters:
-            graphs = sorted(cluster.get_graphs(), key=lambda g: self._distance_fn(g, query))
+        sorted_paths = sorted(cluster.get_graphs(), key=lambda g: self._distance_fn(g, query))
+        n = min(k, len(sorted_paths))
 
-            for graph in graphs:
-
-                if graph.get_path() not in retrieval:
-                    retrieval.append(graph.get_path())
-
-                if len(retrieval) >= k:
-                    return retrieval
+        return [graph.get_path() for graph in sorted_paths[:n]]
 
 
 @measure_execution_time

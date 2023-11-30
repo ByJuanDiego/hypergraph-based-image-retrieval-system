@@ -89,6 +89,14 @@ class MeanShift:
         s: List[Graph] = self._graphs.copy()
         self._centroids.clear()
 
+        def process_graph(graph, threshold):
+            is_cluster_member = True
+            for cluster_member_graph in cluster.get_graphs():
+                if self._distance(graph, cluster_member_graph) > threshold:
+                    is_cluster_member = False
+                    break
+            return is_cluster_member
+
         while len(s) > 0:
             median_graph: int = self.median_graph(s)
             print(f"median graph: {len(s)}")
@@ -102,18 +110,13 @@ class MeanShift:
             iterations: int = 0
 
             while True:
-                for graph in s:
-                    if graph.get_path() == prototype_graph.get_path():
-                        continue
+                with ThreadPoolExecutor() as executor:
+                    futures = [(graph, prototype_graph, self._threshold) for graph in s if
+                               graph.get_path() != prototype_graph.get_path()]
+                    is_cluster_members = list(executor.map(process_graph, *zip(*futures)))
 
-                    is_cluster_member = True
-
-                    for cluster_member_graph in cluster.get_graphs():
-                        if self._distance(graph, cluster_member_graph) > self._threshold:
-                            is_cluster_member = False
-                            break
-
-                    if is_cluster_member:
+                for i, graph in enumerate(s):
+                    if is_cluster_members[i]:
                         cluster.add_graph(graph)
 
                 cluster_graphs: List[Graph] = cluster.get_graphs()

@@ -27,7 +27,7 @@ def build_centroids(distance_fn, save_centroids_path, filename, threshold, cache
 
 
 save_path = "pickles/centroids"
-T = 7.0
+T = 6.0
 
 print("------------- euclidean distance -------------")
 build_centroids(euclidean_distance, save_path, "euclidean_7.p", T, euclidean_cache)
@@ -36,7 +36,7 @@ print("--------------- cosine distance --------------")
 build_centroids(cosine_score, save_path, "cosine_7.p", T, cosine_cache)
 
 print("------------- manhattan distance -------------")
-build_centroids(manhattan_distance, save_path, "manhattan_7.p", T, cache=None)
+build_centroids(manhattan_distance, save_path, "manhattan_6.p", T, cache=None)
 
 print("-------------- weighted distance -------------")
-build_centroids(weighted_distance, save_path, "weighted_7.p", T, weighted_cache)
+build_centroids(weighted_distance, save_path, "weighted_6.p", T, weighted_cache)

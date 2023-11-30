@@ -8,6 +8,7 @@ from graph.embeddings.full_body_3D import get_graph_from_full_body_image, get_po
 
 from indexing.indexes import HyperGraph
 from retrieval.algorithms import knn_retrieval
+from dataset.pickle import load_activity_per_image
 
 
 class GUI:
@@ -16,10 +17,12 @@ class GUI:
 
     _query_path: str = ""
     _labels: List[str]
+    _tags = None
 
     def __init__(self, hyper_graphs: List[HyperGraph], labels: List[str]):
         self._hyper_graphs = hyper_graphs
         self._labels = labels
+        self._tags = load_activity_per_image()
 
     def run(self):
         def browse_files():
@@ -30,9 +33,14 @@ class GUI:
                            ("Images files", "*.jpeg*"),
                            ("all files", "*.*")))
 
+            if not filename:
+                return
+
+            clear_query_outputs()
+            print(filename)
             pil_image = Image.open(filename)
             x, y = pil_image.size
-            pil_image = pil_image.resize((x//6, y//6))
+            pil_image = pil_image.resize((x // 6, y // 6))
             img = ImageTk.PhotoImage(pil_image)
 
             label = Label(window)
@@ -56,10 +64,15 @@ class GUI:
             for hyper_graph in self._hyper_graphs:
                 result_paths.append(knn_retrieval(hyper_graph, graph_query, k=4))
 
+            [print(x) for x in result_paths]
+            for result in result_paths:
+                for path in result:
+                    print(self._tags.get(path.split('/')[1], {}))
+                print()
+
             for i in range(len(result_paths)):
                 x, y = 450, 50
 
-                print(self._labels)
                 method_label = Label(window, text=self._labels[i], height=1, width=28)
                 method_label.place(x=x + (300 * i), y=y - 40)
 
@@ -74,6 +87,12 @@ class GUI:
                     label.configure(image=img)  # Set the image to the label
                     label.place(x=x + (300 * i), y=y)  # Adjust x, y coordinates as needed
                     y += 180
+
+        def clear_query_outputs():
+            # Destroy all labels and images created during the query
+            for widget in window.winfo_children():
+                if isinstance(widget, Label):
+                    widget.destroy()
 
         # Create the root window
         window = Tk()
@@ -99,9 +118,14 @@ class GUI:
                               text="Search",
                               command=query)
 
+        button_clear = Button(window,
+                              text="Clear",
+                              command=clear_query_outputs)
+
         button_explore.place(x=100, y=100)
         button_exit.place(x=100, y=150)
         button_query.place(x=100, y=200)
+        button_clear.place(x=100, y=250)
 
         # Let the window wait for any events
         window.mainloop()

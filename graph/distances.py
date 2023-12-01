@@ -92,4 +92,4 @@ def cosine_v_distance(
 ) -> float:
     arr1 = array(list(map(lambda x: array(x[:3])*x[3], graph1.get_vertexes())))
     arr2 = array(list(map(lambda x: array(x[:3])*x[3], graph2.get_vertexes())))
-    return 1 - dot(arr1, arr2) / (norm(arr1) * norm(arr2))
+    return 1 - dot(arr1.reshape(-1), arr2.reshape(-1)) / (norm(arr1) * norm(arr2))

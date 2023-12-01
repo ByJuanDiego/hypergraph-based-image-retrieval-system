@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from multiprocess import pool
 
 from typing import Callable, List, Dict, Tuple
 from graph.essential import Graph, Cluster
@@ -58,7 +58,7 @@ class MeanShift:
     ) -> int:
         n: int = len(s)
 
-        with ThreadPoolExecutor() as executor:
+        with pool.Pool() as executor:
             futures = [(i, s) for i in range(n)]
             results = executor.map(self.calculate_distance, futures)
 
@@ -110,7 +110,7 @@ class MeanShift:
             iterations: int = 0
 
             while True:
-                with ThreadPoolExecutor() as executor:
+                with pool.Pool() as executor:
                     futures = [(graph, prototype_graph, self._threshold) for graph in s if
                                graph.get_path() != prototype_graph.get_path()]
                     is_cluster_members = list(executor.map(process_graph, *zip(*futures)))

@@ -1,4 +1,4 @@
-from multiprocess import pool
+from concurrent.futures import ThreadPoolExecutor
 
 from typing import Callable, List, Dict, Tuple
 from graph.essential import Graph, Cluster
@@ -58,7 +58,7 @@ class MeanShift:
     ) -> int:
         n: int = len(s)
 
-        with pool.Pool() as executor:
+        with ThreadPoolExecutor() as executor:
             futures = [(i, s) for i in range(n)]
             results = executor.map(self.calculate_distance, futures)
 
@@ -89,10 +89,6 @@ class MeanShift:
         s: List[Graph] = self._graphs.copy()
         self._centroids.clear()
 
-        def process_graph(args: Tuple[Graph, float]):
-            graph, prototype_graph, threshold = args
-            return not (self._distance(prototype_graph, graph) > threshold)
-
         while len(s) > 0:
             median_graph: int = self.median_graph(s)
             print(f"median graph: {len(s)}")
@@ -106,13 +102,18 @@ class MeanShift:
             iterations: int = 0
 
             while True:
-                with pool.Pool() as executor:
-                    futures = [(graph, prototype_graph, self._threshold) for graph in s if
-                               graph.get_path() != prototype_graph.get_path()]
-                    is_cluster_members = list(executor.map(process_graph, futures))
+                for graph in s:
+                    if graph.get_path() == prototype_graph.get_path():
+                        continue
 
-                for i, graph in enumerate(s):
-                    if graph.get_path() != prototype_graph.get_path() or is_cluster_members[i]:
+                    is_cluster_member = True
+
+                    for cluster_member_graph in cluster.get_graphs():
+                        if self._distance(graph, cluster_member_graph) > self._threshold:
+                            is_cluster_member = False
+                            break
+
+                    if is_cluster_member:
                         cluster.add_graph(graph)
 
                 cluster_graphs: List[Graph] = cluster.get_graphs()

@@ -69,6 +69,7 @@ def manhattan_distance(
 
     return distance
 
+
 def l2_distance(
         graph1: Graph,
         graph2: Graph
@@ -78,18 +79,20 @@ def l2_distance(
 
     return norm(array1 - array2)
 
+
 def l2__distance(
         graph1: Graph,
         graph2: Graph
 ) -> float:
-    arr1 = array(list(map(lambda x: array(x[:3])*x[3], graph1.get_vertexes())))
-    arr2 = array(list(map(lambda x: array(x[:3])*x[3], graph2.get_vertexes())))
+    arr1 = array(list(map(lambda x: array(x[:3]) * x[3], graph1.get_vertexes())))
+    arr2 = array(list(map(lambda x: array(x[:3]) * x[3], graph2.get_vertexes())))
     return norm(arr1 - arr2)
+
 
 def cosine_v_distance(
         graph1: Graph,
         graph2: Graph
 ) -> float:
-    arr1 = array(list(map(lambda x: array(x[:3])*x[3], graph1.get_vertexes())))
-    arr2 = array(list(map(lambda x: array(x[:3])*x[3], graph2.get_vertexes())))
+    arr1 = array(list(map(lambda x: array(x[:3]) * x[3], graph1.get_vertexes())))
+    arr2 = array(list(map(lambda x: array(x[:3]) * x[3], graph2.get_vertexes())))
     return 1 - dot(arr1.reshape(-1), arr2.reshape(-1)) / (norm(arr1) * norm(arr2))

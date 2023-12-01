@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from multiprocess import pool
 
 from typing import Callable, List, Dict, Tuple
 from graph.essential import Graph, Cluster
@@ -58,7 +58,7 @@ class MeanShift:
     ) -> int:
         n: int = len(s)
 
-        with ThreadPoolExecutor() as executor:
+        with pool.Pool() as executor:
             futures = [(i, s) for i in range(n)]
             results = executor.map(self.calculate_distance, futures)
 
@@ -132,6 +132,26 @@ class MeanShift:
                 prototype_graph = new_prototype_graph
                 cluster = Cluster()
                 cluster.set_centroid(prototype_graph)
+
+    def fit_leader_algorithm(self) -> None:
+        s: List[Graph] = self._graphs.copy()
+        self._centroids.clear()
+
+        clusters: List[Cluster] = []
+        clusters.append(Cluster())
+        clusters[0].set_centroid(s.pop(0))
+        
+        for i in range(len(s)-1, -1, -1):
+            for cluster in clusters:
+                if self._distance(s[i], cluster.get_centroid()) <= self._threshold:
+                    cluster.add_graph(s[i])
+                    break
+            else:
+                clusters.append(Cluster())
+                clusters[-1].set_centroid(s.pop(i))
+                print(len(clusters))
+
+        self._centroids = [cluster.get_centroid() for cluster in clusters]
 
     def get_centroids(
             self

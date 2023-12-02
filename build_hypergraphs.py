@@ -3,18 +3,18 @@ from typing import List
 from dataset.pickle import load_dataset_in_batches, load_centroids
 
 from graph.essential import Graph
-from graph.distances import weighted_distance, cosine_score, euclidean_distance, manhattan_distance
+from graph.distances import weighted_distance, cosine_score, euclidean_distance, manhattan_distance, best_of_the_best_distance
 
 from indexing.indexes import HyperGraph
 
 
 graphs: List[Graph] = load_dataset_in_batches("pickles/graphs")
 
-cosine_centroids: List[Graph] = load_centroids("pickles/centroids", "cosine_6.p")
-euclidean_centroids: List[Graph] = load_centroids("pickles/centroids", "euclidean_6.p")
-weighted_centroids: List[Graph] = load_centroids("pickles/centroids", "weighted_6.p")
-manhattan_centroids: List[Graph] = load_centroids("pickles/centroids", "manhattan_6.p")
-
+# cosine_centroids: List[Graph] = load_centroids("pickles/centroids", "cosine_6.p")
+# euclidean_centroids: List[Graph] = load_centroids("pickles/centroids", "euclidean_6.p")
+# weighted_centroids: List[Graph] = load_centroids("pickles/centroids", "weighted_6.p")
+# manhattan_centroids: List[Graph] = load_centroids("pickles/centroids", "manhattan_6.p")
+best_centroids: List[Graph] = load_centroids("pickles/centroids", "best_distance_1.5.p")
 
 def build_hyper_graphs(centroids, distance_fn, save_clusters_path, filename, threshold):
     hypergraph = HyperGraph(graphs, distance_fn, threshold, centroids)
@@ -27,16 +27,19 @@ def build_hyper_graphs(centroids, distance_fn, save_clusters_path, filename, thr
 
 
 save_path = "pickles/hyper_graphs"
-T = 6.0
+T = 1.5
 
-print("------------- euclidean distance -------------")
-build_hyper_graphs(euclidean_centroids, euclidean_distance, save_path, "euclidean_6.p", T)
+# print("------------- euclidean distance -------------")
+# build_hyper_graphs(euclidean_centroids, euclidean_distance, save_path, "euclidean_6.p", T)
+#
+# print("--------------- cosine distance --------------")
+# build_hyper_graphs(cosine_centroids, cosine_score, save_path, "cosine_6.p", T)
+#
+# print("------------- manhattan distance -------------")
+# build_hyper_graphs(manhattan_centroids, manhattan_distance, save_path, "manhattan_6.p", T)
+#
+# print("-------------- weighted distance -------------")
+# build_hyper_graphs(weighted_centroids, weighted_distance, save_path, "weighted_6.p", T)
 
-print("--------------- cosine distance --------------")
-build_hyper_graphs(cosine_centroids, cosine_score, save_path, "cosine_6.p", T)
-
-print("------------- manhattan distance -------------")
-build_hyper_graphs(manhattan_centroids, manhattan_distance, save_path, "manhattan_6.p", T)
-
-print("-------------- weighted distance -------------")
-build_hyper_graphs(weighted_centroids, weighted_distance, save_path, "weighted_6.p", T)
+print("-------------- best distance -------------")
+build_hyper_graphs(best_centroids, best_of_the_best_distance, save_path, "best_distance_1.5.p", T)

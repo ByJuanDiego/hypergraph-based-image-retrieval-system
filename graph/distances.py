@@ -96,3 +96,34 @@ def cosine_v_distance(
     arr1 = array(list(map(lambda x: array(x[:3]) * x[3], graph1.get_vertexes())))
     arr2 = array(list(map(lambda x: array(x[:3]) * x[3], graph2.get_vertexes())))
     return 1 - dot(arr1.reshape(-1), arr2.reshape(-1)) / (norm(arr1) * norm(arr2))
+
+
+def best_of_the_best_distance(
+        graph1: Graph,
+        graph2: Graph
+) -> float:
+    key_points = {"hips": 0.4, "ankles": 0.4, "knees": 0.4,
+                 "shoulders": 0.4, "elbows": 0.4, "wrists": 0.4,
+                 "ears": 0.2, "nose": 0.0, "eyes": 0.0, "mouth": 0.0, "pinky": 0.0,
+                 "index": 0.0, "thumb": 0.1, "heel": 0.1, "foot_index": 0.0}
+    key_point_to_landmarks = {
+        "hips": [23, 24], "ankles": [27, 28],
+        "knees": [25, 26], "shoulders": [11, 12],
+        "elbows": [13, 14], "wrists": [15, 16],
+        "ears": [7, 8], "nose": [0],
+        "eyes": [1, 2, 3, 4, 5, 6],
+        "mouth": [9, 10], "pinky": [17, 18], "index": [19, 20],
+        "thumb": [21, 22], "heel": [29, 30], "foot_index": [31, 32]
+    }
+
+    array1 = array(graph1.get_vertexes())
+    array2 = array(graph2.get_vertexes())
+
+    dist = 0
+    for key in key_points:
+        for landmark in key_point_to_landmarks[key]:
+            dist += norm(array1[landmark] - array2[landmark])*key_points[key]
+
+    return log2(1+dist)
+
+

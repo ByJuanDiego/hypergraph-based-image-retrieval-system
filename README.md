@@ -1,0 +1,6 @@
+![7](https://github.com/ByJuanDiego/IRS/assets/79115974/0a807b91-cccb-4582-a4dd-5172973a828d)
+![8](https://github.com/ByJuanDiego/IRS/assets/79115974/a3590d66-016c-4902-b8fa-589e6485f69e)
+![10](https://github.com/ByJuanDiego/IRS/assets/79115974/efac4bef-715e-4cfc-be87-a1380ec09d19)
+![11](https://github.com/ByJuanDiego/IRS/assets/79115974/7adef08c-1938-40d0-b906-2e1823cdd942)
+![12](https://github.com/ByJuanDiego/IRS/assets/79115974/d8b48e45-4e2c-4233-80d6-be8636d078ee)
+![9](https://github.com/ByJuanDiego/IRS/assets/79115974/aa9632da-d31e-4e9c-b665-f35df690f804)
